@@ -441,10 +441,9 @@ def run_vector_damping(force: bool = False) -> dict:
 
 def _categorical_damping_axis(ax):
     positions = np.arange(len(DAMPING_RATIOS))
-    ax.set_xticks(positions)
+    ax.set_xticks(positions[[0, 2, 4]])
     ax.set_xticklabels(
-        ["0", r"$10^{-3}$", r"$10^{-2}$", "0.05", "0.1"],
-        rotation=25, ha="right",
+        ["0", r"$10^{-2}$", "0.1"],
     )
     ax.set_xlabel(r"damping $\gamma/\omega_{\rm mid}^{\rm win}$")
     return positions
@@ -462,7 +461,7 @@ def render_main_figure() -> None:
     steps = np.asarray(retarget["radius_snapshot_steps"], dtype=float)
     spectra = np.asarray(retarget["spectra_snapshots"], dtype=float)
 
-    fig = plt.figure(figsize=(ps.COL_W, 4.65), constrained_layout=True)
+    fig = plt.figure(figsize=(ps.COL_W, 4.55), constrained_layout=True)
     grid = fig.add_gridspec(3, 2, height_ratios=[1.55, 1.0, 1.0])
     ax_a = fig.add_subplot(grid[0, :])
     ax_b = fig.add_subplot(grid[1, :])
@@ -489,15 +488,15 @@ def render_main_figure() -> None:
     ax_a.text(750, 3.45, "probe A", color=BLUE, ha="center", fontsize=ps.BASE_SIZE)
     ax_a.text(1775, 3.45, "probe B", color=PURPLE, ha="center", fontsize=ps.BASE_SIZE)
     ax_a.text(2200, 3.45, "probe A", color=BLUE, ha="center", fontsize=ps.BASE_SIZE)
-    panel_label(ax_a, "a")
+    panel_label(ax_a, "a", fontsize=10.0)
 
     ax_b.plot(
-        steps, retarget["counts_a"], color=BLUE, lw=1.15, ls="-",
-        marker="o", ms=2.5, markevery=10, label="window A",
+        steps, retarget["counts_a"], color=BLUE, lw=1.3, ls="-",
+        marker="o", ms=3.0, markevery=10, label="window A",
     )
     ax_b.plot(
-        steps, retarget["counts_b"], color=PURPLE, lw=1.15, ls="--",
-        marker="s", ms=2.5, markevery=10, label="window B",
+        steps, retarget["counts_b"], color=PURPLE, lw=1.3, ls="--",
+        marker="s", ms=3.0, markevery=10, label="window B",
     )
     for boundary in (1500, 2050):
         ax_b.axvline(boundary, color=DARK, lw=0.6, ls="--")
@@ -516,7 +515,7 @@ def render_main_figure() -> None:
         labelspacing=0.2,
         borderaxespad=0.25,
     )
-    panel_label(ax_b, "b")
+    panel_label(ax_b, "b", fontsize=10.0)
 
     scalar_summary = scalar["summary"]
     vector_rows = vector["rows"]
@@ -539,31 +538,36 @@ def render_main_figure() -> None:
         ax_c, float(propagation["wlo"]), float(propagation["whi"]), axis="x",
         zorder=0.2,
     )
-    ax_c.plot(freq, initial_db, color=GRAY_DARK, lw=0.9, ls="--",
+    ax_c.plot(freq, initial_db, color=GRAY_DARK, lw=1.1, ls="--",
               label="initial")
-    ax_c.plot(freq, learned_db, color=BLUE, lw=1.05, ls="-",
+    ax_c.plot(freq, learned_db, color=BLUE, lw=1.3, ls="-",
               label="learned")
     ax_c.set_ylim(db_floor, 8.0)
     ax_c.set_xlabel(r"frequency $\omega$")
     ax_c.set_ylabel(r"response $\mathcal R_3$ (dB)")
     ax_c.legend(frameon=False, fontsize=ps.TICK_SIZE, loc="lower left",
                 handlelength=1.35)
-    panel_label(ax_c, "c")
+    panel_label(ax_c, "c", fontsize=10.0)
 
     positions = _categorical_damping_axis(ax_d)
     medians = np.asarray([row["gap_ratio_median"] for row in scalar_summary])
     q10 = np.asarray([row["gap_ratio_q10"] for row in scalar_summary])
     q90 = np.asarray([row["gap_ratio_q90"] for row in scalar_summary])
     ax_d.fill_between(positions, q10, q90, color=BLUE, alpha=0.16, lw=0)
-    ax_d.plot(positions, medians, color=BLUE, marker="o", ms=3.5,
-              lw=1.0, ls="-")
+    ax_d.plot(positions, medians, color=BLUE, marker="o", ms=4.2,
+              lw=1.2, ls="-")
     ax_d.plot(
         positions, [row["gap_ratio"] for row in vector_rows],
-        color=PURPLE, marker="s", ms=3.5, lw=1.0, ls="--",
+        color=PURPLE, marker="s", ms=4.2, lw=1.2, ls="--",
     )
     ax_d.set_ylim(bottom=0.0)
     ax_d.set_ylabel(r"relative gap $\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
-    panel_label(ax_d, "d")
+    panel_label(ax_d, "d", fontsize=10.0)
+
+    for ax in (ax_a, ax_b, ax_c, ax_d):
+        ax.xaxis.label.set_size(9.0)
+        ax.yaxis.label.set_size(9.0)
+        ax.tick_params(labelsize=8.5)
 
     ps.savefig(fig, FIGURE_DIR, "fig3_adaptive")
     plt.close(fig)
@@ -607,7 +611,7 @@ def write_tables() -> None:
     lines = [
         r"\begin{tabular}{@{}rrrrr@{}}",
         r"\toprule",
-        r"$\gamma/\omega_{\rm mid}^{\rm win}$ & scalar success & scalar gap & Bloch success & Bloch gap \\",
+        r"$\gamma/\omega_{\rm mid}^{\rm win}$ & scalar success & scalar $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ & Bloch success & Bloch $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
     ]
     for row in scalar["summary"]:
@@ -642,13 +646,13 @@ def write_tables() -> None:
         if np.isclose(float(row["damping_ratio"]), 0.01)
     )
     lines = [
-        r"\begin{tabular}{@{}lccc@{}}",
+        r"\begin{tabular}{@{}lcc@{}}",
         r"\toprule",
-        r"calibration factors & supplied to learner & success & median relative gap \\",
+        r"calibration factors & success & median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
-        rf"$\alpha_e=1$ & no & {ideal['success']}/{ideal['n']} & "
+        rf"$\alpha_e=1$ & {ideal['success']}/{ideal['n']} & "
         rf"{ideal['gap_ratio_median']:.3f} \\",
-        rf"$\alpha_e\sim\operatorname{{Unif}}[0.5,2]$ & no & "
+        rf"$\alpha_e\sim\operatorname{{Unif}}[0.5,2]$ & "
         rf"{calibration['success']}/{calibration['n']} & "
         rf"{calibration['gap_ratio_median']:.3f} \\",
         r"\bottomrule",

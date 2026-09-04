@@ -124,8 +124,9 @@ def draw_probe_schematic(ax) -> None:
 
     Stage 1: random forces drive every node; each node reads its response u.
     Stage 2: each node is re-driven by its phase-conjugated measured
-    displacement and reads the second response w.  Stage 3: one edge multiplies its two
-    measured strains to form its exact raw local gradient signal.
+    displacement and reads the gain-scaled second response.  Stage 3: one edge
+    multiplies its two measured strains to form a signal proportional to the
+    exact raw local gradient.
     """
     ax.set_xlim(0, 10.5)
     ax.set_ylim(0, 3.2)
@@ -185,9 +186,10 @@ def draw_probe_schematic(ax) -> None:
     ax.annotate("", xy=(9.85, 1.45), xytext=(8.30, 1.45),
                 arrowprops=dict(arrowstyle="<|-|>", color=PURPLE, lw=0.9,
                                 mutation_scale=6))
-    ax.text(9.08, 1.10, r"$\Delta w_e$", ha="center", va="center",
+    ax.text(9.08, 1.10, r"$\Delta\widetilde w_e$", ha="center", va="center",
             color=PURPLE, fontsize=ps.BASE_SIZE)
-    ax.text(9.08, 0.40, r"$g_e\propto-\,\mathrm{Re}(\Delta w_e\Delta u_e)$",
+    ax.text(9.08, 0.40,
+            r"$g_{e,\gamma}\propto-\,\mathrm{Re}(\Delta\widetilde w_e\Delta u_e)$",
             ha="center", va="center", fontsize=7)
 
 
@@ -652,7 +654,7 @@ def render_bloch_gap_figure() -> None:
     ax_b.set_xticks(sizes)
     ax_b.set_xticklabels([str(s) for s in sizes])
     ax_b.set_xlabel(r"cell size $N_{\mathrm{side}}$")
-    ax_b.set_ylabel(r"$\Delta\omega/\omega_{\mathrm{mid}}$")
+    ax_b.set_ylabel(r"$\Delta\omega/\omega_{\mathrm{mid}}^{\mathrm{gap}}$")
 
     # (c) Initial and (d) learned band structures, separated so the dense
     # initial spectrum is legible; they share the y-axis and the shaded
@@ -700,7 +702,7 @@ def render_bloch_gap_figure() -> None:
     # the clear portion of the learned gap above that window.
     label_y = target_hi + 0.52 * (gap_hi - target_hi)
     ax_d.text(0.5 * xpos.max(), label_y,
-              rf"$\Delta\omega/\omega_{{\mathrm{{mid}}}}={norm_gap:.3f}$",
+              rf"$\Delta\omega/\omega_{{\mathrm{{mid}}}}^{{\mathrm{{gap}}}}={norm_gap:.3f}$",
               ha="center", va="center", fontsize=ps.BASE_SIZE, color=DARK,
               bbox=ps.TAG_BOX)
     savefig(fig, "fig2_bloch")

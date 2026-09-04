@@ -110,7 +110,8 @@ def shade_window(ax, lo: float, hi: float, *, axis: str = "x",
         raise ValueError("axis must be 'x' or 'y'")
 
 
-def panel_label(ax, letter: str, *, x_ref=None) -> None:
+def panel_label(ax, letter: str, *, x_ref=None,
+                fontsize: float = PANEL_SIZE) -> None:
     """Bold lowercase '(a)' at a consistent offset outside the top-left corner.
 
     `x_ref`: optional axes whose left edge supplies the horizontal position
@@ -120,7 +121,7 @@ def panel_label(ax, letter: str, *, x_ref=None) -> None:
         blended_transform_factory(x_ref.transAxes, ax.transAxes)
     ax.annotate(rf"\textbf{{({letter})}}", xy=(0.0, 1.0), xycoords=trans,
                 xytext=(-4.0, 3.0), textcoords="offset points",
-                fontsize=PANEL_SIZE, fontweight="bold",
+                fontsize=fontsize, fontweight="bold",
                 ha="right", va="bottom", annotation_clip=False)
 
 

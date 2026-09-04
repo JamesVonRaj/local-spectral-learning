@@ -1335,7 +1335,7 @@ def write_bz_convergence_table(records: list[dict]) -> Path:
     lines = [
         r"\begin{tabular}{rcrrrrr}",
         r"\toprule",
-        r"$N_k$ & Bands & $N_{\rm in}$ & $\max_{\bm k}\omega_m$ & $\min_{\bm k}\omega_{m+1}$ & $\Delta\omega$ & $\Delta\omega/\omega_{\rm mid}$ \\",
+        r"$N_k$ & Bands & $N_{\rm in}$ & $\max_{\bm k}\omega_m$ & $\min_{\bm k}\omega_{m+1}$ & $\Delta\omega$ & $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
     ]
     for rec in records:
@@ -1355,7 +1355,7 @@ def write_size_scan_table(size_scan: list[dict]) -> Path:
     lines = [
         r"\begin{tabular}{lrrccc}",
         r"\toprule",
-        r"cell & nodes & seeds & success & median $\Delta\omega/\omega_{\rm mid}$ & gap range \\",
+        r"unit-cell size $N_{\rm side}\times N_{\rm side}$ & $N_{\rm nodes}$ & cells & success & median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ & range of $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
     ]
     for row in size_scan:
@@ -1379,9 +1379,8 @@ def render_active_tables() -> list[Path]:
     paths = [
         write_bz_convergence_table(bz["records"]),
         write_size_scan_table(size_scan),
-        write_summary_table(
-            controls["records"], "control",
-            FIG_DIR / "table_vector_controls.tex", "control", "cells",
+        write_vector_controls_table(
+            controls["records"], FIG_DIR / "table_vector_controls.tex",
         ),
     ]
     print("rendered active vector tables:", flush=True)
@@ -1530,6 +1529,43 @@ def write_summary_table(
             f"{latex_escape(row[group_key])} & {row['n']} & {row['success_rate']:.2f} & "
             f"{row['median_final_n_in']:.0f} & {row['median_gap']:.4f} & "
             f"{row['median_normalized_gap']:.3f} \\\\"
+        )
+    lines.extend([r"\bottomrule", r"\end{tabular}", ""])
+    path.write_text("\n".join(lines))
+    return path
+
+
+def write_vector_controls_table(records: list[dict], path: Path) -> Path:
+    """Render target-gap metrics only for arms that actually succeed."""
+    order = [
+        "paired-response", "paired-no-bounds", "forward-only",
+        "shuffled-response", "random-matched", "uniform-material",
+        "uniform-stiffness",
+    ]
+    lines = [
+        r"\begin{tabular}{lrrrrr}",
+        r"\toprule",
+        r"control & cells & success & median $N_{\rm in}$ & median $\Delta\omega$ & median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
+        r"\midrule",
+    ]
+    for label in order:
+        group = [record for record in records if str(record["control"]) == label]
+        if not group:
+            continue
+        successful = [record for record in group if bool(record["success"])]
+        median_n_in = float(np.median(scalar_field(group, "metrics.n_in")))
+        if successful:
+            gap = f"{float(np.median(scalar_field(successful, 'band_gap.gap'))):.4f}"
+            relative = (
+                f"{float(np.median(scalar_field(successful, 'band_gap.normalized_gap'))):.3f}"
+            )
+        else:
+            gap = "--"
+            relative = "--"
+        lines.append(
+            f"{latex_escape(label)} & {len(group)} & "
+            f"{len(successful)}/{len(group)} & {median_n_in:.0f} & "
+            f"{gap} & {relative} \\\\"
         )
     lines.extend([r"\bottomrule", r"\end{tabular}", ""])
     path.write_text("\n".join(lines))
@@ -1845,8 +1881,8 @@ def run_controls(args: argparse.Namespace) -> dict:
             flush=True,
         )
 
-    table = write_summary_table(
-        records, "control", FIG_DIR / "table_vector_controls.tex", "control", "cells",
+    table = write_vector_controls_table(
+        records, FIG_DIR / "table_vector_controls.tex",
     )
     fig = plot_vector_controls(records)
     payload = {

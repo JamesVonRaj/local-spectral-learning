@@ -806,7 +806,7 @@ def write_expanded_controls_table(records):
         "\\begin{tabular}{lccccc}",
         "\\toprule",
         "Control & success & final $n_{\\rm in}$ & "
-        "$\\Delta\\omega/\\omega_{\\rm mid}$ (successes) & "
+        "$\\Delta\\omega/\\omega_{\\rm mid}^{\\rm gap}$ (successes) & "
         "material ratio & bound edges \\\\",
         "\\midrule",
     ]
@@ -1147,7 +1147,7 @@ def write_target_robustness_table(records):
         "\\begin{tabular}{rccc}",
         "\\toprule",
         "Center percentile & success & final $n_{\\rm in}$ & "
-        "$\\Delta\\omega/\\omega_{\\rm mid}$ (successes) \\\\",
+        "$\\Delta\\omega/\\omega_{\\rm mid}^{\\rm gap}$ (successes) \\\\",
         "\\midrule",
     ]
     for center in np.unique(records["center_percentile"]):
@@ -1534,9 +1534,13 @@ def write_finite_size_table(records):
     lines = [
         "\\begin{tabular}{rcccccccc}",
         "\\toprule",
-        "$L$ & runs & success & final $n_{\\rm in}$ & "
-        "$G_{\\rm stiff}$ & abs. gap $\\Delta\\omega$ & uniform $n_{\\rm in}$ & "
-        "material ratio & bound edges \\\\",
+        "\\shortstack{network side length $L$\\\\($L\\times L$ nodes)} & "
+        "runs & success & \\shortstack{mean final\\\\$n_{\\rm in}$} & "
+        "$G_{\\rm stiff}$ & "
+        "\\shortstack{absolute learned-gap\\\\width $\\Delta\\omega$} & "
+        "\\shortstack{mean uniform-rescaling\\\\$n_{\\rm in}^{\\rm uni}$} & "
+        "\\shortstack{mean material\\\\ratio} & "
+        "\\shortstack{edges at either\\\\radius bound (\\%)} \\\\",
         "\\midrule",
     ]
     for size in np.unique(records["size"]):
@@ -1695,7 +1699,7 @@ def write_regularizer_table(records):
         "\\begin{tabular}{lccccc}",
         "\\toprule",
         "Local regularizer & success & final $n_{\\rm in}$ & "
-        "$\\Delta\\omega/\\omega_{\\rm mid}$ & "
+        "$\\Delta\\omega/\\omega_{\\rm mid}^{\\rm gap}$ & "
         "material ratio & bound edges \\\\",
         "\\midrule",
     ]
