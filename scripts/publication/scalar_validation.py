@@ -1295,7 +1295,7 @@ def write_centralized_reference_table(records):
         "\\begin{tabular}{lccc}",
         "\\toprule",
         "Method & success & final $n_{\\rm in}$ & "
-        "$\\Delta\\omega/\\omega_{\\rm mid}$ (successes) \\\\",
+        "$\\Delta\\omega/\\omega_{\\rm mid}^{\\rm gap}$ (successes) \\\\",
         "\\midrule",
     ]
     labels = {

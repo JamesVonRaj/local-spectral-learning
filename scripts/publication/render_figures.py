@@ -167,7 +167,8 @@ def draw_probe_schematic(ax) -> None:
             fontsize=7)
     ax.text(0.95, 0.16, r"measure $u_i$", ha="center", va="center",
             fontsize=7)
-    ax.text(5.15, 0.57, "re-drive", ha="center", va="center", fontsize=7)
+    ax.text(5.15, 0.57, r"measure $\widetilde w=\Lambda w$",
+            ha="center", va="center", fontsize=6.8)
     ax.text(5.15, 0.10, r"$F_i^{(2)}{=}\Lambda u_i^*$", ha="center",
             va="center", fontsize=7)
 

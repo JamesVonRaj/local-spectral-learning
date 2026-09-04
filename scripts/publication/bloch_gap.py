@@ -1127,7 +1127,7 @@ def plot_validation(cell: PeriodicVectorCell, result: dict, out_base: Path) -> N
         ax_size.set_xlim(min(xs) - 0.5, max(xs) + 0.5)
         ax_size.set_ylim(0, 0.70)
         ax_size.set_xlabel("unit cell")
-        ax_size.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}$")
+        ax_size.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
         ps.panel_tag(ax_size, "all 10 clear", loc="upper right",
                      fontsize=ps.TICK_SIZE)
     else:
@@ -1521,7 +1521,7 @@ def write_summary_table(
     lines = [
         r"\begin{tabular}{lrrrrr}",
         r"\toprule",
-        rf"{first_col_label} & {count_label} & success & median $N_{{\rm in}}$ & median $\Delta\omega$ & median $\Delta\omega/\omega_{{\rm mid}}$ \\",
+        rf"{first_col_label} & {count_label} & success & median $N_{{\rm in}}$ & median $\Delta\omega$ & median $\Delta\omega/\omega_{{\rm mid}}^{{\rm gap}}$ \\",
         r"\midrule",
     ]
     for row in summary:
@@ -1849,7 +1849,7 @@ def plot_vector_controls(records: list[dict]) -> Path:
     axes[1].scatter(norm_gap, y, color=colors, s=25, zorder=2)
     axes[1].set_xscale("log")
     axes[1].set_xlim(gap_floor, 1.55 * float(np.max(norm_gap)))
-    axes[1].set_xlabel(r"median $\Delta\omega/\omega_{\rm mid}$")
+    axes[1].set_xlabel(r"median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
     axes[1].tick_params(axis="y", labelleft=False)
 
     for label, ax in zip("ab", axes):
@@ -2114,7 +2114,7 @@ def plot_vector_summary(args: argparse.Namespace) -> Path:
     ax.set_xticks(grids)
     ax.set_xlim(min(grids) - 3, max(grids) + 3)
     ax.set_xlabel(r"BZ grid $N_k$")
-    ax.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}$")
+    ax.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
 
     ax = axes[0, 1]
     all_ens_records = ensemble["records"]
@@ -2128,7 +2128,7 @@ def plot_vector_summary(args: argparse.Namespace) -> Path:
            color=ps.GREEN)
     ax.set_xticks(x)
     ax.set_xlabel("network seed")
-    ax.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}$")
+    ax.set_ylabel(r"$\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
 
     ax = axes[1, 0]
     reg_summary = regularizers["summary"]
@@ -2148,7 +2148,7 @@ def plot_vector_summary(args: argparse.Namespace) -> Path:
     ax.bar(x, [r["median_normalized_gap"] for r in reg_summary], color=ps.PURPLE)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=30, ha="right")
-    ax.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}$")
+    ax.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
 
     ax = axes[1, 1]
     pert_summary = sorted(perturbation["summary"], key=lambda r: float(r["sigma"]))
@@ -2169,7 +2169,7 @@ def plot_vector_summary(args: argparse.Namespace) -> Path:
     ax.set_xticks(sigmas)
     ax.set_xlim(-0.003, max(sigmas) * 1.08)
     ax.set_xlabel(r"radius-noise $\sigma$")
-    ax.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}$")
+    ax.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$")
 
     # All four panels report the same dimensionless gap. A common baseline
     # and range prevent tiny convergence changes from being visually inflated.

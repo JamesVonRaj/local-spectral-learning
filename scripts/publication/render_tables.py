@@ -384,7 +384,7 @@ def figure3_bloch() -> None:
     ax_b.set_ylabel(r"frequency $\omega$")
     ax_b.set_title(
         rf"bands {lower_band}--{upper_band} gap, "
-        rf"$\Delta\omega/\omega_{{\rm mid}}={norm_gap:.3f}$"
+        rf"$\Delta\omega/\omega_{{\rm mid}}^{{\rm gap}}={norm_gap:.3f}$"
     )
 
     panel_label(ax_c, "c")
@@ -412,7 +412,7 @@ def figure3_bloch() -> None:
     ax_d.set_xticks(sizes)
     ax_d.set_xticklabels([f"{s}x{s}" for s in sizes])
     ax_d.set_xlabel("cell size")
-    ax_d.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}$", color=GREEN)
+    ax_d.set_ylabel(r"median $\Delta\omega/\omega_{\rm mid}^{\rm gap}$", color=GREEN)
     ax_d.tick_params(axis="y", colors=GREEN)
     ax_d.spines["left"].set_color(GREEN)
     savefig(fig, "fig3_bloch")
@@ -742,7 +742,7 @@ def write_nonspatial_table() -> dict:
         r"\begin{tabular}{rcccc}",
         r"\toprule",
         r"seed & $N$ & initial $N_{\rm in}$ & final $N_{\rm in}$ & "
-        r"$\Delta\omega/\omega_{\rm mid}$ \\",
+        r"$\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
     ]
     for row in records:

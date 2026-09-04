@@ -94,7 +94,7 @@ def write_table(records):
     lines = [
         r"\begin{tabular}{rcccc}",
         r"\toprule",
-        r"seed & $N$ & initial $N_{\rm in}$ & final $N_{\rm in}$ & $\Delta\omega/\omega_{\rm mid}$ \\",
+        r"seed & $N$ & initial $N_{\rm in}$ & final $N_{\rm in}$ & $\Delta\omega/\omega_{\rm mid}^{\rm gap}$ \\",
         r"\midrule",
     ]
     for row in records:
