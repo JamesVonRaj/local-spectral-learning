@@ -1,0 +1,77 @@
+{
+  "description": "Reproducible configurations for the two-time heat-trace learning arms reported in Fig. 4/E1 and the supplemental tables.",
+  "script": "python -m publication.two_time",
+  "arms": {
+    "bounds_only_paper": {
+      "command": "PYTHONPATH=scripts python -m publication.two_time --constraint bounds --bounds-step-normalization none --n-seeds 5 --size 20 --steps 1500 --batch 16 --alpha 0.1 --grad-clip 0.05 --target-quantile 0.60 --rho 8 --width-log 0.15",
+      "parameters": {
+        "constraint": "bounds",
+        "bounds_step_normalization": "none",
+        "n_seeds": 5,
+        "size": 20,
+        "steps": 1500,
+        "batch": 16,
+        "alpha": 0.1,
+        "grad_clip": 0.05,
+        "bounds": [0.5, 2.0],
+        "target_quantile": 0.60,
+        "rho": 8.0,
+        "width_log": 0.15,
+        "lambda_star": "60th percentile of initial positive rates",
+        "t_s": "ln(rho)/(2*lambda_star*(rho-1))",
+        "t_l": "rho*t_s",
+        "window": "lambda_star*exp(+-width_log)"
+      }
+    },
+    "single_time_aging_control": {
+      "command": "PYTHONPATH=scripts python -m publication.render_tables",
+      "parameters": {
+        "implementation": "run_single_time_control() in publication.render_tables",
+        "constraint": "bounds",
+        "bounds_step_normalization": "none",
+        "n_seeds": 5,
+        "size": 20,
+        "steps": 1500,
+        "batch": 16,
+        "alpha": 0.1,
+        "grad_clip": 0.05,
+        "bounds": [0.5, 2.0],
+        "target_quantile": 0.60,
+        "rho": 8.0,
+        "width_log": 0.15,
+        "update": "+(4*t_s*r_e/L_e)*A_e(t_s)"
+      }
+    },
+    "budgeted_variant": {
+      "command": "PYTHONPATH=scripts python -m publication.two_time --constraint budget --n-seeds 5 --size 20 --steps 800 --batch 12 --alpha 0.5 --grad-clip 0.05 --target-quantile 0.15 --rho 3 --width-log 0.08",
+      "parameters": {
+        "constraint": "budget",
+        "n_seeds": 5,
+        "size": 20,
+        "steps": 800,
+        "batch": 12,
+        "alpha": 0.5,
+        "grad_clip": 0.05,
+        "target_quantile": 0.15,
+        "rho": 3.0,
+        "width_log": 0.08,
+        "budget": "rescale radii each step to conserve sum_e r_e^2/L_e"
+      }
+    },
+    "free_unbounded_diagnostic": {
+      "command": "PYTHONPATH=scripts python -m publication.two_time --constraint free --n-seeds 5 --size 20 --steps 1500 --batch 16 --alpha 0.1 --grad-clip 0.05 --target-quantile 0.60 --rho 8 --width-log 0.15",
+      "parameters": {
+        "constraint": "free",
+        "n_seeds": 5,
+        "size": 20,
+        "steps": 1500,
+        "batch": 16,
+        "alpha": 0.1,
+        "grad_clip": 0.05,
+        "target_quantile": 0.60,
+        "rho": 8.0,
+        "width_log": 0.15
+      }
+    }
+  }
+}

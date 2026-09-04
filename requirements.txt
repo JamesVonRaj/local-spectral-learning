@@ -1,0 +1,13 @@
+# Core dependencies for reproducing the figures
+numpy>=1.20
+scipy>=1.7
+matplotlib>=3.4
+networkx>=2.6
+
+# Configuration loading and non-spatial graph controls
+pyyaml>=6.0
+
+# Optional sparse solver for faster response solves (install one for best speed):
+#   pypardiso>=0.4       # Intel MKL PARDISO  (Linux/Windows x86, fastest)
+#   scikit-umfpack>=0.4  # SuiteSparse UMFPACK (macOS / ARM)
+# If neither is present, falls back to scipy's SuperLU (slower but universal).

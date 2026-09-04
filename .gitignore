@@ -1,0 +1,42 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.ipynb_checkpoints/
+.DS_Store
+
+# Manuscripts and rendered documents never belong in this repository.
+*.tex
+*.bib
+*.pdf
+*.doc
+*.docx
+*.odt
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.synctex.gz
+*Notes.bib
+/paper/
+/slides/
+/submission/
+/manuscript_assurance*/
+
+# Regenerable data products / training outputs
+/scripts/outputs/
+/artifacts/
+
+# Internal working files kept out of the public repository
+/PRIVATE_SUBMISSION_CHECKLIST.md
+/prl_rebuild_outline.tex
+/scripts/validation/prl_length.py
+/.ruff_cache/
+
+# Keep only collaborator-facing documentation in the release.
+/docs/*
+!/docs/reproduction.md
