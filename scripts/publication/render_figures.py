@@ -652,8 +652,12 @@ def render_bloch_gap_figure() -> None:
     ax_b.errorbar(sizes, meds, yerr=[meds - mins, maxs - meds],
                   fmt="s", color=BLUE, ms=3.5, lw=0.9, capsize=2.5,
                   capthick=0.9, zorder=3)
-    ax_b.set_xticks(sizes)
-    ax_b.set_xticklabels([str(s) for s in sizes])
+    tick_sizes = (
+        sizes if len(sizes) <= 5
+        else np.unique(np.concatenate((sizes[::2], sizes[-2:])))
+    )
+    ax_b.set_xticks(tick_sizes)
+    ax_b.set_xticklabels([str(s) for s in tick_sizes])
     ax_b.set_xlabel(r"cell size $N_{\mathrm{side}}$")
     ax_b.set_ylabel(r"$\Delta\omega/\omega_{\mathrm{mid}}^{\mathrm{gap}}$")
 

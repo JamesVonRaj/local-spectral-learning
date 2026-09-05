@@ -30,6 +30,11 @@ VECTOR_EXEMPLAR = (
     / "prl_vector_periodic"
     / "vector_periodic_s5_net0_train0_c50_w10.npz"
 )
+LARGE_VECTOR_EXEMPLAR = (
+    DATA_ROOT
+    / "prl_vector_periodic"
+    / "vector_periodic_s20_net0_train0_c50_w10.npz"
+)
 REQUIRED_DATA = (
     VECTOR_EXEMPLAR,
     DATA_ROOT / "prl_bandgap" / "fig1_exemplar.npz",
@@ -96,11 +101,41 @@ def experiment_commands(workers: int) -> list[tuple[str, ...]]:
             "--response-metric-eta", "0.02",
             "--response-metric-lambda-ratio", "0.025",
             "--response-bound-mode", "clip",
-            "--ensemble-sizes", "5", "6", "8",
+            "--ensemble-sizes", "5", "6", "8", "10", "12", "16", "20",
             "--ensemble-net-seeds", "10",
             "--steps", "3000",
             "--k-dense-grid", "33",
-            "--eval-every", "100",
+            "--eval-every", "3000",
+        ),
+        module(
+            vector,
+            "--mode", "single",
+            "--response-mode", "reciprocal",
+            "--frequency-sampling", "random_grid",
+            "--frequencies-per-step", "1",
+            "--material-update", "response_conditioned_log",
+            "--response-metric-eta", "0.02",
+            "--response-metric-lambda-ratio", "0.025",
+            "--response-bound-mode", "clip",
+            "--size", "20",
+            "--net-seed", "0",
+            "--train-seed", "0",
+            "--center-percentile", "50",
+            "--width-percentile", "10",
+            "--steps", "3000",
+            "--k-train-grid", "5",
+            "--k-eval-grid", "9",
+            "--k-dense-grid", "33",
+            "--eval-every", "3000",
+        ),
+        module(
+            vector,
+            "--mode", "refine-gap",
+            "--input", str(LARGE_VECTOR_EXEMPLAR),
+            "--refine-grid", "9",
+            "--refine-candidates", "5",
+            "--refine-maxiter", "200",
+            "--refine-output-name", "refined_gap_s20_net0",
         ),
         module(
             vector,

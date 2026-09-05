@@ -52,6 +52,7 @@ PUBLICATION_FILES = {
         "bz_convergence.npz",
         "latest_vector_periodic_validation.json",
         "refined_gap.json",
+        "refined_gap_s20_net0.json",
         "size_scan_summary.json",
         "vector_controls.json",
         "vector_controls.npz",
@@ -63,6 +64,7 @@ PUBLICATION_FILES = {
         "vector_periodic_s6_net[0-9]_train0_c50_w10.npz",
         "vector_periodic_s8_net[0-9]_train0_c50_w10.json",
         "vector_periodic_s8_net[0-9]_train0_c50_w10.npz",
+        "vector_periodic_s20_net0_train0_c50_w10.npz",
     ),
     "prl_v7_adaptive": (
         "absolute_windows.json",

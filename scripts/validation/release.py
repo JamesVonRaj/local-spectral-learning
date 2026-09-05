@@ -90,6 +90,29 @@ def check_headline_results() -> None:
     require(0.380 < gap["normalized_gap"] < 0.382, "unexpected normalized Bloch gap")
     require(gap["contains_target_window"], "Bloch gap does not contain the prescribed spectral window")
 
+    large_refined = read_json(
+        "scripts/outputs/prl_vector_periodic/refined_gap_s20_net0.json"
+    )
+    large_gap = large_refined["refined_gap"]
+    require(
+        large_gap["gap"] > 0.0 and large_gap["contains_target_window"],
+        "refined 20-by-20 Bloch exemplar does not contain the target window",
+    )
+    require(
+        large_gap["lower_band_1based"] == 414
+        and large_gap["upper_band_1based"] == 415,
+        "unexpected bands for the refined 20-by-20 Bloch exemplar",
+    )
+    require(
+        0.323 < large_gap["normalized_gap"] < 0.325,
+        "unexpected normalized gap for the refined 20-by-20 exemplar",
+    )
+    require(
+        large_refined["lower_refinement"]["optimizer_success"]
+        and large_refined["upper_refinement"]["optimizer_success"],
+        "20-by-20 band-edge optimizer did not converge",
+    )
+
     exemplar_path = (
         REPO_ROOT / "scripts/outputs/prl_vector_periodic/"
         "vector_periodic_s5_net0_train0_c50_w10.npz"
@@ -124,7 +147,10 @@ def check_headline_results() -> None:
     )
 
     sizes = read_json("scripts/outputs/prl_vector_periodic/size_scan_summary.json")
-    require([row["size"] for row in sizes] == [5, 6, 8], "unexpected size ensemble")
+    require(
+        [row["size"] for row in sizes] == [5, 6, 8, 10, 12, 16, 20],
+        "unexpected size ensemble",
+    )
     require(all(row["success"] == row["n"] == 10 for row in sizes), "size scan failed")
 
     propagation = read_json("scripts/outputs/prl_propagation/summary.json")

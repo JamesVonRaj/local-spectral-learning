@@ -49,9 +49,7 @@ RETARGET_SCHEDULE = (
 )
 RETARGET_END = 2350
 CALIBRATION_RANGE = (0.5, 2.0)
-PROPAGATION_SPECTRUM = (
-    dataset("prl_propagation") / "spectrum_s5_net0_nk129_nf301_g0p01000.npz"
-)
+VECTOR_CONTROLS = dataset("prl_vector_periodic") / "vector_controls.json"
 
 
 def _json_ready(value):
@@ -454,10 +452,9 @@ def render_main_figure() -> None:
     retarget = run_retargeting(force=False)
     scalar = run_scalar_damping(workers=1, force=False)
     vector = run_vector_damping(force=False)
-    if not PROPAGATION_SPECTRUM.exists():
-        raise FileNotFoundError(PROPAGATION_SPECTRUM)
-    with np.load(PROPAGATION_SPECTRUM, allow_pickle=False) as archive:
-        propagation = {key: archive[key] for key in archive.files}
+    if not VECTOR_CONTROLS.exists():
+        raise FileNotFoundError(VECTOR_CONTROLS)
+    controls = json.loads(VECTOR_CONTROLS.read_text())
     steps = np.asarray(retarget["radius_snapshot_steps"], dtype=float)
     spectra = np.asarray(retarget["spectra_snapshots"], dtype=float)
 
@@ -519,34 +516,43 @@ def render_main_figure() -> None:
 
     scalar_summary = scalar["summary"]
     vector_rows = vector["rows"]
-    freq = np.asarray(propagation["frequencies"], dtype=float)
-    db_floor = -140.0
-    initial_db = 20.0 * np.log10(np.maximum(
-        np.asarray(propagation["initial_transfer"], dtype=float),
-        10.0 ** (db_floor / 20.0),
-    ))
-    learned_db = 20.0 * np.log10(np.maximum(
-        np.asarray(propagation["learned_transfer"], dtype=float),
-        10.0 ** (db_floor / 20.0),
-    ))
-    gap_lo = float(propagation["gap_lo"])
-    gap_hi = float(propagation["gap_hi"])
-    ax_c.axvspan(gap_lo, gap_hi, facecolor=BLUE, alpha=0.10, lw=0)
-    for boundary in (gap_lo, gap_hi):
-        ax_c.axvline(boundary, color=BLUE, alpha=0.65, lw=0.55)
-    ps.shade_window(
-        ax_c, float(propagation["wlo"]), float(propagation["whi"]), axis="x",
-        zorder=0.2,
+    control_order = (
+        "paired-response", "forward-only", "shuffled-response",
+        "random-matched", "uniform-material", "uniform-stiffness",
     )
-    ax_c.plot(freq, initial_db, color=GRAY_DARK, lw=1.1, ls="--",
-              label="initial")
-    ax_c.plot(freq, learned_db, color=BLUE, lw=1.3, ls="-",
-              label="learned")
-    ax_c.set_ylim(db_floor, 8.0)
-    ax_c.set_xlabel(r"frequency $\omega$")
-    ax_c.set_ylabel(r"response $\mathcal R_3$ (dB)")
-    ax_c.legend(frameon=False, fontsize=ps.TICK_SIZE, loc="lower left",
-                handlelength=1.35)
+    control_ticks = (
+        "paired", "forward", "shuffled", "random", "uniform\n$r$",
+        "uniform\n$k$",
+    )
+    control_summary = {
+        str(row["control"]): row for row in controls["summary"]
+    }
+    rates = np.asarray([
+        float(control_summary[label]["success_rate"]) for label in control_order
+    ])
+    sample_sizes = np.asarray([
+        int(control_summary[label]["n"]) for label in control_order
+    ])
+    xpos = np.arange(len(control_order))
+    colors = [BLUE] + [GRAY_DARK] * (len(control_order) - 1)
+    ax_c.vlines(xpos, 0.0, rates, color=GRAY, lw=1.0, zorder=1)
+    ax_c.scatter(xpos, rates, color=colors, s=24, zorder=2)
+    ax_c.set_xlim(-0.55, len(control_order) - 0.45)
+    ax_c.set_ylim(-0.08, 1.16)
+    ax_c.set_xticks(xpos)
+    ax_c.set_xticklabels(control_ticks, rotation=42, ha="right")
+    ax_c.set_yticks([0.0, 0.5, 1.0])
+    ax_c.set_ylabel("success fraction")
+    paired_count = int(round(float(rates[0]) * int(sample_sizes[0])))
+    ax_c.annotate(
+        f"{paired_count}/{int(sample_sizes[0])}", (xpos[0], rates[0]),
+        xytext=(0, 4), textcoords="offset points", ha="center", va="bottom",
+        fontsize=ps.TICK_SIZE,
+    )
+    ax_c.text(
+        float(np.mean(xpos[1:])), 0.08, "each 0/8", ha="center", va="bottom",
+        fontsize=ps.TICK_SIZE,
+    )
     panel_label(ax_c, "c", fontsize=10.0)
 
     positions = _categorical_damping_axis(ax_d)

@@ -31,8 +31,8 @@ digest of every member and the archive itself. The archive preserves paths below
 It contains:
 
 - the scalar exemplar, analytic-gradient check, ensembles, and controls;
-- periodic-vector training, Brillouin-zone refinement, size ensembles, and
-  signal/material ablations;
+- periodic-vector training, Brillouin-zone refinement at side lengths 5 and
+  20, size ensembles through side length 20, and signal/material ablations;
 - the nonspatial Watts--Strogatz screen;
 - propagation spectra, convergence tests, source ensembles, and trained cells;
 - scalar and periodic damping scans, shared absolute-window runs, the A--B--A
@@ -92,7 +92,9 @@ The fast check verifies, among other invariants:
 - the analytic scalar gradient has maximum relative error below `2e-6`;
 - the refined periodic-vector gap lies between bands 25 and 26 and has relative
   width approximately 0.381;
-- every retained sample at cell sizes 5, 6, and 8 succeeds;
+- every retained sample at cell sizes 5, 6, 8, 10, 12, 16, and 20 succeeds;
+- the separately saved side-length-20 exemplar retains a positive complete gap
+  under adaptive band-edge refinement;
 - the propagation dataset contains ten materials and 500 coordinate sources;
 - all retained scalar and periodic damping runs succeed over the tested range;
 - all 30 shared absolute-window runs use zero online eigensolves and succeed;

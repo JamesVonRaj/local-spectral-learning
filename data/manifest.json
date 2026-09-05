@@ -1,8 +1,8 @@
 {
   "archive": {
-    "bytes": 6053113,
+    "bytes": 7040895,
     "path": "data/publication-data.tar.gz",
-    "sha256": "c701c4c6527ef6aa11f51a41e26c83e1d8c637f2aca8d3e69c8b1cc9025deed2"
+    "sha256": "170f972144dd7c11d2501efdcc8bf1640a77dbb0d34f432cc9d623cafb4abe70"
   },
   "description": "Numerical data used to verify results and render derived artifacts.",
   "files": [
@@ -252,9 +252,14 @@
       "sha256": "5fe86b2262f034e5766772493280f4870c91eca397b63246231064ed84efa482"
     },
     {
-      "bytes": 510,
+      "bytes": 2504,
+      "path": "scripts/outputs/prl_vector_periodic/refined_gap_s20_net0.json",
+      "sha256": "7ad101d836b95c7d80d5d688a431caae77f027c1f320d19400ba2cc1748b3f32"
+    },
+    {
+      "bytes": 2566,
       "path": "scripts/outputs/prl_vector_periodic/size_scan_summary.json",
-      "sha256": "0f7ec314ec39c33ec0eebb2867dc72127647cb12c69c0f03360d332400dbfce8"
+      "sha256": "b15473d1c5ee393f43fd8d6e0fea94d7836d8f0b32119ed2ebaa27313eb8927b"
     },
     {
       "bytes": 140455,
@@ -267,14 +272,19 @@
       "sha256": "451568f70c867c2b3650268aa91d2487666980d26db03d2c0644fb99627f1267"
     },
     {
-      "bytes": 84421,
+      "bytes": 201839,
       "path": "scripts/outputs/prl_vector_periodic/vector_gap_ensemble.json",
-      "sha256": "c3e0711e21fbfeff10aae640d47f2113eb2ab64507fb2420aa06dd702b57603b"
+      "sha256": "3b058ec793e1e41f5811eea778f9e72d7cad897a5ec8a788164953aa287de5ff"
     },
     {
-      "bytes": 16064,
+      "bytes": 33937,
       "path": "scripts/outputs/prl_vector_periodic/vector_gap_ensemble.npz",
-      "sha256": "73cb31e538c59bc79442630732d19fa59ae6e4c07952dc10ac724015b2061515"
+      "sha256": "dd4086e4fbed7921c1e38a327b2947998329e25e6cc7154a4aa16244e78cb3da"
+    },
+    {
+      "bytes": 964938,
+      "path": "scripts/outputs/prl_vector_periodic/vector_periodic_s20_net0_train0_c50_w10.npz",
+      "sha256": "8f2a7ab5e21a51cd67f20e54cfaeb39ab8ae672c4dbad5dc06c5a05f40056144"
     },
     {
       "bytes": 6751,
@@ -579,7 +589,7 @@
   ],
   "schema_version": 1,
   "totals": {
-    "files": 114,
-    "uncompressed_bytes": 6714915
+    "files": 116,
+    "uncompressed_bytes": 7819704
   }
 }

@@ -1374,7 +1374,9 @@ def render_active_tables() -> list[Path]:
     """Render the three periodic-vector tables cited by the supplement."""
     ensure_dirs()
     bz = load_output_json("bz_convergence.json")
-    size_scan = load_output_json("size_scan_summary.json")
+    ensemble = load_output_json("vector_gap_ensemble.json")
+    size_scan = summarize_size_scan(ensemble["records"])
+    save_json(DATA_DIR / "size_scan_summary.json", size_scan)
     controls = load_output_json("vector_controls.json")
     paths = [
         write_bz_convergence_table(bz["records"]),
@@ -1653,26 +1655,58 @@ def make_run_record(
     return record
 
 
-def write_ensemble_derived_outputs(
-    records: list[dict],
-    histories: dict[int, list[np.ndarray]],
-) -> dict:
-    """Write the size scan and training curve consumed by the paper figures."""
+def summarize_size_scan(records: list[dict]) -> list[dict]:
+    """Summarize each cell size with finite-sample uncertainty intervals."""
     size_scan = []
+    z95 = 1.959963984540054
     for size in sorted({int(r["size"]) for r in records}):
         group = [r for r in records if int(r["size"]) == size]
         gaps = np.asarray(
             [r["band_gap"]["normalized_gap"] for r in group], dtype=np.float64,
         )
+        n_success = int(sum(bool(r["success"]) for r in group))
+        n_group = len(group)
+        success_rate = n_success / n_group
+        denominator = 1.0 + z95**2 / n_group
+        wilson_center = (
+            success_rate + z95**2 / (2.0 * n_group)
+        ) / denominator
+        wilson_half_width = z95 * np.sqrt(
+            success_rate * (1.0 - success_rate) / n_group
+            + z95**2 / (4.0 * n_group**2)
+        ) / denominator
+        bootstrap_rng = np.random.default_rng(751000 + int(size))
+        bootstrap_medians = np.median(
+            bootstrap_rng.choice(gaps, size=(20000, n_group), replace=True),
+            axis=1,
+        )
         size_scan.append({
             "size": size,
             "nodes": int(group[0]["n_nodes"]),
-            "n": len(group),
-            "success": int(sum(bool(r["success"]) for r in group)),
+            "n": n_group,
+            "success": n_success,
+            "success_rate": float(success_rate),
+            "success_wilson95": [
+                float(wilson_center - wilson_half_width),
+                float(wilson_center + wilson_half_width),
+            ],
             "median": float(np.median(gaps)),
+            "median_bootstrap95": [
+                float(np.percentile(bootstrap_medians, 2.5)),
+                float(np.percentile(bootstrap_medians, 97.5)),
+            ],
             "min": float(np.min(gaps)),
             "max": float(np.max(gaps)),
         })
+    return size_scan
+
+
+def write_ensemble_derived_outputs(
+    records: list[dict],
+    histories: dict[int, list[np.ndarray]],
+) -> dict:
+    """Write the size scan and training curve consumed by the paper figures."""
+    size_scan = summarize_size_scan(records)
 
     size_scan_path = DATA_DIR / "size_scan_summary.json"
     save_json(size_scan_path, size_scan)
@@ -2192,7 +2226,24 @@ def band_frequency_at(
     kred: np.ndarray,
     band_index: int,
 ) -> float:
-    return float(band_frequencies(cell, radii, wrap_reduced_k(kred)[None, :])[0, int(band_index)])
+    # Refinement repeatedly needs one interior eigenvalue, not the full Bloch
+    # spectrum. LAPACK's indexed Hermitian solve makes large-cell multistart
+    # refinement practical while retaining the same eigenvalue definition.
+    try:
+        from scipy.linalg import eigh
+    except ImportError as exc:
+        raise SystemExit("scipy is required for band-edge refinement") from exc
+
+    band = int(band_index)
+    stiffness = bloch_stiffness(cell, radii, wrap_reduced_k(kred))
+    value = eigh(
+        stiffness,
+        subset_by_index=[band, band],
+        eigvals_only=True,
+        check_finite=False,
+        driver="evr",
+    )[0]
+    return float(np.sqrt(max(float(value.real), 0.0)))
 
 
 def band_neighborhood_validation(
@@ -2327,7 +2378,7 @@ def run_refine_gap(args: argparse.Namespace) -> dict:
         "upper_refinement": upper,
         "refine_candidates": int(n_candidates),
     }
-    save_json(DATA_DIR / "refined_gap.json", payload)
+    save_json(DATA_DIR / f"{args.refine_output_name}.json", payload)
     print(
         f"refined band {band_label(payload['refined_gap'])}: "
         f"gap={refined_gap:.6f}, normalized={payload['refined_gap']['normalized_gap']:.3f}",
@@ -2394,6 +2445,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--refine-grid", type=int, default=33)
     p.add_argument("--refine-candidates", type=int, default=7)
     p.add_argument("--refine-maxiter", type=int, default=400)
+    p.add_argument("--refine-output-name", default="refined_gap")
 
     p.add_argument("--search-sizes", type=int, nargs="+", default=[4, 5])
     p.add_argument("--search-net-seeds", type=int, default=4)

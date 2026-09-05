@@ -55,7 +55,7 @@ docs/                   code and data reproduction documentation
 ```
 
 The working cache at `scripts/outputs/` and rendered files under `artifacts/`
-are ignored. The curated archive contains only the 114 numerical files used by
+are ignored. The curated archive contains only the 116 numerical files used by
 the active validation and rendering workflows; exploratory searches, logs,
 smoke-test caches, and superseded outputs are excluded.
 
